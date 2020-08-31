@@ -159,7 +159,7 @@ final class NetworkTransferSubjectTransportTests: XCTestCase {
 
     ///
 
-    func test_Cancellation_causedByLocalRequest() {
+    func assertCancellationCorrectness(cancel: @escaping () -> Void) {
         let expectedCompletion = expectation(description: "client must receive completion")
 
         let wait =
@@ -169,8 +169,8 @@ final class NetworkTransferSubjectTransportTests: XCTestCase {
             .collect()
             .sink { XCTAssertEqual($0, []) }
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            self.clientSubject?.cancel()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            cancel()
         }
 
         waitForExpectations(timeout: waitTime) { _ in
@@ -180,24 +180,19 @@ final class NetworkTransferSubjectTransportTests: XCTestCase {
 
     ///
 
+    func test_Cancellation_causedByLocalRequest() {
+        assertCancellationCorrectness {
+            self.clientSubject?.cancel()
+        }
+    }
+
+    ///
+
     func test_Cancellation_causedByRemoteConnectionReset() {
-        let expectedCompletion = expectation(description: "server must receive completion")
-
-        let wait =
-            clientSubject?
-            .handleEvents(receiveCompletion: { _ in expectedCompletion.fulfill() })
-            .assertNoFailure()
-            .collect()
-            .sink { XCTAssertEqual($0, []) }
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+        assertCancellationCorrectness {
             self.client?.close().whenComplete { _ in
                 self.client = nil
             }
-        }
-
-        waitForExpectations(timeout: waitTime) { _ in
-            wait?.cancel()
         }
     }
 
