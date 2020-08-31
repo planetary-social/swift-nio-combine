@@ -166,7 +166,8 @@ final class NetworkTransferSubject_TransportTests: XCTestCase {
             clientSubject?
             .handleEvents(receiveCompletion: { _ in expectedCompletion.fulfill() })
             .assertNoFailure()
-            .sink { _ in }
+            .collect()
+            .sink { XCTAssertEqual($0, []) }
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             self.clientSubject?.cancel()
@@ -186,7 +187,8 @@ final class NetworkTransferSubject_TransportTests: XCTestCase {
             clientSubject?
             .handleEvents(receiveCompletion: { _ in expectedCompletion.fulfill() })
             .assertNoFailure()
-            .sink { _ in }
+            .collect()
+            .sink { XCTAssertEqual($0, []) }
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             self.client?.close().whenComplete { _ in
@@ -215,7 +217,8 @@ final class NetworkTransferSubject_TransportTests: XCTestCase {
 
                 return .init()
             }
-            .sink { _ in }
+            .collect()
+            .sink { XCTAssertEqual($0, []) }
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             self.serverSubject?.send(self.arbitraryPacket)
@@ -229,20 +232,20 @@ final class NetworkTransferSubject_TransportTests: XCTestCase {
     ///
 
     func test_Failure_simulatingReceiveProblem() {
-        let expectedError = expectation(description: "client must fail")
+        let expectedError = expectation(description: "client must fail at reading")
         failingChannelHandler!.failOnRead = true
 
         let wait =
             clientSubject?
             .catch { error -> Empty<Data, Never> in
-                print(error)
                 if case .connectionProblem(NetworkTransferSubject.Malfunction.packetCorrupted) = error {
                     expectedError.fulfill()
                 }
 
                 return .init()
             }
-            .sink { _ in }
+            .collect()
+            .sink { XCTAssertEqual($0, []) }
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             self.serverSubject?.send(self.arbitraryPacket)
