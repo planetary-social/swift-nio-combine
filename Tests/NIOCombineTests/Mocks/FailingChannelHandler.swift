@@ -19,7 +19,6 @@ final class FailingChannelHandler: ChannelDuplexHandler {
     ///
 
     var failOnRead = false
-    var failOnSend = false // FIXME: Unused
 
     ///
 
