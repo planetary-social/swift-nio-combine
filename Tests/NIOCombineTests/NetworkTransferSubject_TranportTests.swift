@@ -12,8 +12,8 @@ import XCTest
 final class NetworkTransferSubject_TransportTests: XCTestCase {
 
     ///
-    
-    var events: EventLoopGroup? = nil
+
+    var events: EventLoopGroup?
 
     ///
 
