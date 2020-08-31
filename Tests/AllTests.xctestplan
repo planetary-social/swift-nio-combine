@@ -1,0 +1,26 @@
+{
+  "configurations" : [
+    {
+      "id" : "9054C465-8DB0-4593-BB0A-90F7794EB6D3",
+      "name" : "Test Suite",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "nsZombieEnabled" : true,
+    "threadSanitizerEnabled" : true,
+    "undefinedBehaviorSanitizerEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "NIOCombineTests",
+        "name" : "NIOCombineTests"
+      }
+    }
+  ],
+  "version" : 1
+}
