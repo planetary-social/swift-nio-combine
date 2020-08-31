@@ -106,7 +106,7 @@ final class NetworkTransferSubjectTransportTests: XCTestCase {
     }
 
     ///
-    
+
     override func tearDownWithError() throws {
         defer { lock.signal() }
 
@@ -121,9 +121,9 @@ final class NetworkTransferSubjectTransportTests: XCTestCase {
 
         failingChannelHandler = nil
     }
-    
+
     ///
-    
+
     func test_Sending_networkPackets() {
         let expectReceive = expectation(description: "expected to receive packet on the server side")
         let packet = arbitraryPacket
@@ -139,9 +139,9 @@ final class NetworkTransferSubjectTransportTests: XCTestCase {
             wait?.cancel()
         }
     }
-    
+
     ///
-    
+
     func test_Reading_networkPackets() {
         let expectReceive = expectation(description: "expected to receive packet on the client side")
         let packet = arbitraryPacket
@@ -156,9 +156,9 @@ final class NetworkTransferSubjectTransportTests: XCTestCase {
             wait?.cancel()
         }
     }
-    
+
     ///
-    
+
     func test_Cancellation_causedByLocalRequest() {
         let expectedCompletion = expectation(description: "client must receive completion")
 
