@@ -57,7 +57,7 @@ final class NetworkTransferSubjectTransportTests: XCTestCase {
 
     ///
 
-    static func arbitrarySubject(for label: String) ->  NetworkTransferSubject { // FIXME: label, remove probably
+    static func arbitrarySubject(for label: String) -> NetworkTransferSubject { // FIXME: label, remove probably
         return NetworkTransferSubject()
     }
 
@@ -104,7 +104,7 @@ final class NetworkTransferSubjectTransportTests: XCTestCase {
             .connect(to: endpoint)
             .wait()
     }
-    
+
     ///
     
     override func tearDownWithError() throws {
