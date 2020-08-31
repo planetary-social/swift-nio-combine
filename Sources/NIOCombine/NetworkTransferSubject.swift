@@ -12,20 +12,20 @@ import NIOTransportServices
 public class NetworkTransferSubject: ChannelInboundHandler {
 
     ///
-    
+
     public typealias InboundIn = ByteBuffer
 
     ///
-    
+
     public typealias OutboundOut = ByteBuffer
 
     ///
-    
+
     internal let reading = PassthroughSubject<Data, Failure>()
     internal let writing = PassthroughSubject<Data, Failure>()
 
     ///
-    
+
     internal var services: [Cancellable] = []
 
     ///
@@ -114,7 +114,6 @@ public class NetworkTransferSubject: ChannelInboundHandler {
         os_log(.error, log: status, "caught a connection problem: %@", String(describing: error))
         send(completion: .failure(.connectionProblem(error)))
     }
-
 
     ///
 
