@@ -226,28 +226,28 @@ final class NetworkTransferSubjectTransportTests: XCTestCase {
 
     ///
 
+    func test_Failure_simulatingCaughtError() {
+        let expectedError = expectation(description: "client must fail")
+        failingChannelHandler!.caughtFailure = NSError(domain: "example.error", code: 191)
+
+        assertExpectedFailure { error in
+            if case .connectionProblem(let failure) = error {
+                XCTAssertEqual(failure as NSError, self.failingChannelHandler!.caughtFailure)
+                expectedError.fulfill()
+            }
+        }
+    }
+
+    ///
+
     func test_Failure_simulatingReceiveProblem() {
         let expectedError = expectation(description: "client must fail at reading")
         failingChannelHandler!.failOnRead = true
 
-        let wait =
-            clientSubject?
-            .catch { error -> Empty<Data, Never> in
-                if case .connectionProblem(NetworkTransferSubject.Malfunction.packetCorrupted) = error {
-                    expectedError.fulfill()
-                }
-
-                return .init()
+        assertExpectedFailure { error in
+            if case .connectionProblem(NetworkTransferSubject.Malfunction.packetCorrupted) = error {
+                expectedError.fulfill()
             }
-            .collect()
-            .sink { XCTAssertEqual($0, []) }
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            self.serverSubject?.send(self.arbitraryPacket)
-        }
-
-        waitForExpectations(timeout: waitTime) { _ in
-            wait?.cancel()
         }
     }
 
