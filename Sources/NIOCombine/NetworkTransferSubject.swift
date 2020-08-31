@@ -23,7 +23,6 @@ public class NetworkTransferSubject: ChannelInboundHandler {
     
     internal let reading = PassthroughSubject<Data, Failure>()
     internal let writing = PassthroughSubject<Data, Failure>()
-    internal var closing = PassthroughSubject<Void, Never>()
 
     ///
     
