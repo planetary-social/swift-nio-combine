@@ -82,8 +82,8 @@ final class NetworkTransferSubject_TransportTests: XCTestCase {
     func setUp_NIOServer() throws -> Channel {
         try ServerBootstrap(group: events!)
             .serverChannelOption(ChannelOptions.socketOption(.so_reuseaddr), value: 1)
-            .childChannelInitializer { [self] channel in
-                return channel.pipeline.addHandler(serverSubject!)
+            .childChannelInitializer { channel in
+                return channel.pipeline.addHandler(self.serverSubject!)
             }
             .childChannelOption(ChannelOptions.recvAllocator, value: AdaptiveRecvByteBufferAllocator())
             .childChannelOption(ChannelOptions.socketOption(.so_reuseaddr), value: 1)
@@ -96,9 +96,9 @@ final class NetworkTransferSubject_TransportTests: XCTestCase {
     func setUp_NIOClient() throws -> Channel {
         try ClientBootstrap(group: events!)
             .channelOption(ChannelOptions.socketOption(.so_reuseaddr), value: 1)
-            .channelInitializer { [self] channel in
-                channel.pipeline.addHandler(failingChannelHandler!).flatMap { _ in
-                    channel.pipeline.addHandler(clientSubject!)
+            .channelInitializer { channel in
+                channel.pipeline.addHandler(self.failingChannelHandler!).flatMap { _ in
+                    channel.pipeline.addHandler(self.clientSubject!)
                 }
             }
             .connect(to: endpoint)
@@ -168,8 +168,8 @@ final class NetworkTransferSubject_TransportTests: XCTestCase {
             .assertNoFailure()
             .sink { _ in }
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [self] in
-            clientSubject?.cancel()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            self.clientSubject?.cancel()
         }
 
         waitForExpectations(timeout: waitTime) { _ in
@@ -188,8 +188,8 @@ final class NetworkTransferSubject_TransportTests: XCTestCase {
             .assertNoFailure()
             .sink { _ in }
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [self] in
-            client?.close().whenComplete { _ in
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            self.client?.close().whenComplete { _ in
                 self.client = nil
             }
         }
@@ -207,9 +207,9 @@ final class NetworkTransferSubject_TransportTests: XCTestCase {
 
         let wait =
             clientSubject?
-            .catch { [self] error -> Empty<Data, Never> in
+            .catch { error -> Empty<Data, Never> in
                 if case .connectionProblem(let failure) = error {
-                    XCTAssertEqual(failure as NSError, failingChannelHandler!.caughtFailure)
+                    XCTAssertEqual(failure as NSError, self.failingChannelHandler!.caughtFailure)
                     expectedError.fulfill()
                 }
 
@@ -217,8 +217,8 @@ final class NetworkTransferSubject_TransportTests: XCTestCase {
             }
             .sink { _ in }
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [self] in
-            serverSubject?.send(arbitraryPacket)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            self.serverSubject?.send(self.arbitraryPacket)
         }
 
         waitForExpectations(timeout: waitTime) { _ in
@@ -244,8 +244,8 @@ final class NetworkTransferSubject_TransportTests: XCTestCase {
             }
             .sink { _ in }
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [self] in
-            serverSubject?.send(arbitraryPacket)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            self.serverSubject?.send(self.arbitraryPacket)
         }
 
         waitForExpectations(timeout: waitTime) { _ in

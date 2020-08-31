@@ -40,7 +40,7 @@ public class NetworkTransferSubject: ChannelInboundHandler {
 
     ///
 
-    internal var pointsOfInterest = (
+    internal static var pointsOfInterest = (
         ConnectionActive: StaticString("ConnectionActive"),
         PacketRead: StaticString("PacketRead")
     )
@@ -60,7 +60,7 @@ public class NetworkTransferSubject: ChannelInboundHandler {
             .handleEvents(receiveCompletion: { _ in self.finish(context: context) })
             .sink { self.writeAndFlush(packet: $0, to: channel) })
 
-        os_signpost(.begin, log: status, name: pointsOfInterest.ConnectionActive,
+        os_signpost(.begin, log: status, name: Self.pointsOfInterest.ConnectionActive,
                     "connected to %@", String(describing: context.remoteAddress))
     }
 
@@ -74,7 +74,7 @@ public class NetworkTransferSubject: ChannelInboundHandler {
     ///
 
     public func channelRead(context: ChannelHandlerContext, data: NIOAny) {
-        os_signpost(.begin, log: status, name: pointsOfInterest.PacketRead,
+        os_signpost(.begin, log: status, name: Self.pointsOfInterest.PacketRead,
                     "incoming data from %@", String(describing: context.remoteAddress))
 
         var buffer = self.unwrapInboundIn(data)
@@ -89,7 +89,7 @@ public class NetworkTransferSubject: ChannelInboundHandler {
 
         reading.send(Data(packet))
 
-        os_signpost(.end, log: status, name: pointsOfInterest.PacketRead, "packet accepted")
+        os_signpost(.end, log: status, name: Self.pointsOfInterest.PacketRead, "packet accepted")
         os_log(.debug, log: status, "received a packet of %d bytes", packet.count)
     }
 
@@ -100,12 +100,12 @@ public class NetworkTransferSubject: ChannelInboundHandler {
 
         _ = channel
             .writeAndFlush(wrapOutboundOut(payload))
-            .map { [self] in
-                os_log(.debug, log: status, "delivered %d bytes", packet.count)
+            .map {
+                os_log(.debug, log: self.status, "delivered %d bytes", packet.count)
             }
-            .recover { [self] in
-                os_log(.error, log: status, "write failed: %@", String(describing: $0))
-                send(completion: .failure(.connectionProblem(Malfunction.packetDeliveryFailed)))
+            .recover {
+                os_log(.error, log: self.status, "write failed: %@", String(describing: $0))
+                self.send(completion: .failure(.connectionProblem(Malfunction.packetDeliveryFailed)))
             }
     }
 
@@ -120,9 +120,9 @@ public class NetworkTransferSubject: ChannelInboundHandler {
     ///
 
     private func finish(context: ChannelHandlerContext) {
-        writes.async(flags: .barrier) { [self] in
-            send(completion: .finished)
-            os_signpost(.end, log: status, name: pointsOfInterest.ConnectionActive, "finished")
+        writes.async(flags: .barrier) {
+            self.send(completion: .finished)
+            os_signpost(.end, log: self.status, name: Self.pointsOfInterest.ConnectionActive, "finished")
         }
     }
 
