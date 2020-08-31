@@ -9,7 +9,7 @@ import XCTest
 
 ///
 
-final class NetworkTransferSubject_TransportTests: XCTestCase {
+final class NetworkTransferSubjectTransportTests: XCTestCase {
 
     ///
 

@@ -5,7 +5,7 @@ import XCTest
 
 @testable import NIOCombine
 
-final class NetworkTransferSubject_ConcurrentAccessTests: XCTestCase {
+final class NetworkTransferSubjectConcurrentAccessTests: XCTestCase {
 
     ///
 
