@@ -98,7 +98,7 @@ public class NetworkTransferSubject: ChannelInboundHandler {
         let payload = channel.allocator.buffer(bytes: packet)
 
         _ = channel
-            .writeAndFlush(wrapOutboundOut(payload))
+            .writeAndFlush(wrapOutboundOut(payload)) // XXX: Consider not flushing?
             .map {
                 os_log(.debug, log: self.status, "delivered %d bytes", packet.count)
             }
